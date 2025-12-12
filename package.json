@@ -4,6 +4,10 @@
   "description": "Comment System",
   "license": "ISC",
   "author": "Md. Asaduzzman Arabin",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/azn-arabin/comments-hub-backend.git"
+  },
   "main": "server.ts",
   "scripts": {
     "dev": "nodemon server.ts",

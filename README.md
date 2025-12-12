@@ -50,8 +50,8 @@ A robust, scalable backend for a real-time comment system built with MongoDB, Ex
 ### 1. Clone the repository
 
 ```bash
-git clone <your-repo-url>
-cd comments-backend
+git clone https://github.com/azn-arabin/comments-hub-backend.git
+cd comments-hub-backend
 ```
 
 ### 2. Install dependencies
@@ -446,7 +446,7 @@ git add .
 git commit -m "Initial commit: Complete comment system backend"
 
 # Add remote
-git remote add origin <your-repo-url>
+git remote add origin https://github.com/azn-arabin/comments-hub-backend.git
 
 # Push
 git push -u origin main
