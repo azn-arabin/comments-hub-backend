@@ -1,7 +1,7 @@
-import { Server as SocketIOServer, Socket } from 'socket.io';
-import { Server as HTTPServer } from 'http';
-import { verifyToken } from '../config/jwt';
-import { SocketEvents } from '../types';
+import { Server as SocketIOServer, Socket } from "socket.io";
+import { Server as HTTPServer } from "http";
+import { verifyToken } from "../config/jwt";
+import { SocketEvents } from "../types";
 
 export class SocketService {
   private io: SocketIOServer;
@@ -9,8 +9,8 @@ export class SocketService {
   constructor(server: HTTPServer) {
     this.io = new SocketIOServer(server, {
       cors: {
-        origin: process.env.CLIENT_URL || 'http://localhost:3000',
-        methods: ['GET', 'POST'],
+        origin: process.env.CLIENT_URL || "http://localhost:3000",
+        methods: ["GET", "POST"],
         credentials: true,
       },
     });
@@ -25,14 +25,14 @@ export class SocketService {
         const token = socket.handshake.auth.token;
 
         if (!token) {
-          return next(new Error('Authentication error: No token provided'));
+          return next(new Error("Authentication error: No token provided"));
         }
 
         const decoded = verifyToken(token);
         (socket as any).user = decoded;
         next();
       } catch (error) {
-        next(new Error('Authentication error: Invalid token'));
+        next(new Error("Authentication error: Invalid token"));
       }
     });
 
@@ -72,7 +72,9 @@ export class SocketService {
 
   // Emit comment deletion
   public emitDeleteComment(pageId: string, commentId: string): void {
-    this.io.to(`page:${pageId}`).emit(SocketEvents.DELETE_COMMENT, { commentId });
+    this.io
+      .to(`page:${pageId}`)
+      .emit(SocketEvents.DELETE_COMMENT, { commentId });
   }
 
   // Emit like event
@@ -101,7 +103,7 @@ export const initializeSocket = (server: HTTPServer): SocketService => {
 
 export const getSocketService = (): SocketService => {
   if (!socketService) {
-    throw new Error('Socket service not initialized');
+    throw new Error("Socket service not initialized");
   }
   return socketService;
 };

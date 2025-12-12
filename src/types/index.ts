@@ -1,5 +1,5 @@
-import { Request } from 'express';
-import { Document, Types } from 'mongoose';
+import { Request } from "express";
+import { Document, Types } from "mongoose";
 
 // User Interface
 export interface IUser extends Document {
@@ -40,20 +40,20 @@ export interface AuthRequest extends Request {
 export interface PaginationQuery {
   page?: string;
   limit?: string;
-  sort?: 'newest' | 'mostLiked' | 'mostDisliked';
+  sort?: "newest" | "mostLiked" | "mostDisliked";
 }
 
 // Socket Events
 export enum SocketEvents {
-  CONNECTION = 'connection',
-  DISCONNECT = 'disconnect',
-  JOIN_PAGE = 'joinPage',
-  LEAVE_PAGE = 'leavePage',
-  NEW_COMMENT = 'newComment',
-  UPDATE_COMMENT = 'updateComment',
-  DELETE_COMMENT = 'deleteComment',
-  LIKE_COMMENT = 'likeComment',
-  DISLIKE_COMMENT = 'dislikeComment',
+  CONNECTION = "connection",
+  DISCONNECT = "disconnect",
+  JOIN_PAGE = "joinPage",
+  LEAVE_PAGE = "leavePage",
+  NEW_COMMENT = "newComment",
+  UPDATE_COMMENT = "updateComment",
+  DELETE_COMMENT = "deleteComment",
+  LIKE_COMMENT = "likeComment",
+  DISLIKE_COMMENT = "dislikeComment",
 }
 
 // API Response

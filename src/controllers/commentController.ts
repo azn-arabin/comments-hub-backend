@@ -1,8 +1,8 @@
-import { Response } from 'express';
-import Comment from '../models/Comment';
-import { AuthRequest, ApiResponse, PaginationQuery } from '../types';
-import { Types } from 'mongoose';
-import { getSocketService } from '../utils/socket';
+import { Response } from "express";
+import Comment from "../models/Comment";
+import { AuthRequest, ApiResponse, PaginationQuery } from "../types";
+import { Types } from "mongoose";
+import { getSocketService } from "../utils/socket";
 
 // @desc    Get all comments for a page
 // @route   GET /api/comments/:pageId
@@ -13,7 +13,11 @@ export const getComments = async (
 ): Promise<void> => {
   try {
     const { pageId } = req.params;
-    const { page = '1', limit = '10', sort = 'newest' } = req.query as PaginationQuery;
+    const {
+      page = "1",
+      limit = "10",
+      sort = "newest",
+    } = req.query as PaginationQuery;
 
     const pageNum = parseInt(page);
     const limitNum = parseInt(limit);
@@ -21,9 +25,9 @@ export const getComments = async (
 
     // Build sort criteria
     let sortCriteria: any = { createdAt: -1 }; // Default: newest
-    if (sort === 'mostLiked') {
+    if (sort === "mostLiked") {
       sortCriteria = { likesCount: -1, createdAt: -1 };
-    } else if (sort === 'mostDisliked') {
+    } else if (sort === "mostDisliked") {
       sortCriteria = { dislikesCount: -1, createdAt: -1 };
     }
 
@@ -35,9 +39,9 @@ export const getComments = async (
 
     // Get comments with aggregation for sorting by array length
     let comments;
-    
-    if (sort === 'mostLiked' || sort === 'mostDisliked') {
-      const sortField = sort === 'mostLiked' ? 'likes' : 'dislikes';
+
+    if (sort === "mostLiked" || sort === "mostDisliked") {
+      const sortField = sort === "mostLiked" ? "likes" : "dislikes";
       comments = await Comment.aggregate([
         { $match: query },
         {
@@ -50,16 +54,16 @@ export const getComments = async (
         { $limit: limitNum },
         {
           $lookup: {
-            from: 'users',
-            localField: 'author',
-            foreignField: '_id',
-            as: 'author',
+            from: "users",
+            localField: "author",
+            foreignField: "_id",
+            as: "author",
           },
         },
-        { $unwind: '$author' },
+        { $unwind: "$author" },
         {
           $project: {
-            'author.password': 0,
+            "author.password": 0,
           },
         },
       ]);
@@ -68,7 +72,7 @@ export const getComments = async (
         .sort(sortCriteria)
         .skip(skip)
         .limit(limitNum)
-        .populate('author', '-password')
+        .populate("author", "-password")
         .lean();
     }
 
@@ -85,10 +89,10 @@ export const getComments = async (
       },
     } as ApiResponse);
   } catch (error: any) {
-    console.error('Get comments error:', error);
+    console.error("Get comments error:", error);
     res.status(500).json({
       success: false,
-      error: 'Error fetching comments',
+      error: "Error fetching comments",
     } as ApiResponse);
   }
 };
@@ -106,7 +110,7 @@ export const createComment = async (
     if (!req.user) {
       res.status(401).json({
         success: false,
-        error: 'Not authenticated',
+        error: "Not authenticated",
       } as ApiResponse);
       return;
     }
@@ -117,7 +121,7 @@ export const createComment = async (
       if (!parentComment) {
         res.status(404).json({
           success: false,
-          error: 'Parent comment not found',
+          error: "Parent comment not found",
         } as ApiResponse);
         return;
       }
@@ -131,7 +135,7 @@ export const createComment = async (
     });
 
     const populatedComment = await Comment.findById(comment._id)
-      .populate('author', '-password')
+      .populate("author", "-password")
       .lean();
 
     // Emit socket event
@@ -139,19 +143,19 @@ export const createComment = async (
       const socketService = getSocketService();
       socketService.emitNewComment(pageId, populatedComment);
     } catch (error) {
-      console.log('Socket service not available');
+      console.log("Socket service not available");
     }
 
     res.status(201).json({
       success: true,
-      message: 'Comment created successfully',
+      message: "Comment created successfully",
       data: populatedComment,
     } as ApiResponse);
   } catch (error: any) {
-    console.error('Create comment error:', error);
+    console.error("Create comment error:", error);
     res.status(500).json({
       success: false,
-      error: 'Error creating comment',
+      error: "Error creating comment",
     } as ApiResponse);
   }
 };
@@ -170,7 +174,7 @@ export const updateComment = async (
     if (!req.user) {
       res.status(401).json({
         success: false,
-        error: 'Not authenticated',
+        error: "Not authenticated",
       } as ApiResponse);
       return;
     }
@@ -180,7 +184,7 @@ export const updateComment = async (
     if (!comment) {
       res.status(404).json({
         success: false,
-        error: 'Comment not found',
+        error: "Comment not found",
       } as ApiResponse);
       return;
     }
@@ -189,7 +193,7 @@ export const updateComment = async (
     if (comment.author.toString() !== req.user.userId) {
       res.status(403).json({
         success: false,
-        error: 'Not authorized to update this comment',
+        error: "Not authorized to update this comment",
       } as ApiResponse);
       return;
     }
@@ -198,7 +202,7 @@ export const updateComment = async (
     await comment.save();
 
     const updatedComment = await Comment.findById(comment._id)
-      .populate('author', '-password')
+      .populate("author", "-password")
       .lean();
 
     // Emit socket event
@@ -206,19 +210,19 @@ export const updateComment = async (
       const socketService = getSocketService();
       socketService.emitUpdateComment(comment.pageId, updatedComment);
     } catch (error) {
-      console.log('Socket service not available');
+      console.log("Socket service not available");
     }
 
     res.status(200).json({
       success: true,
-      message: 'Comment updated successfully',
+      message: "Comment updated successfully",
       data: updatedComment,
     } as ApiResponse);
   } catch (error: any) {
-    console.error('Update comment error:', error);
+    console.error("Update comment error:", error);
     res.status(500).json({
       success: false,
-      error: 'Error updating comment',
+      error: "Error updating comment",
     } as ApiResponse);
   }
 };
@@ -236,7 +240,7 @@ export const deleteComment = async (
     if (!req.user) {
       res.status(401).json({
         success: false,
-        error: 'Not authenticated',
+        error: "Not authenticated",
       } as ApiResponse);
       return;
     }
@@ -246,7 +250,7 @@ export const deleteComment = async (
     if (!comment) {
       res.status(404).json({
         success: false,
-        error: 'Comment not found',
+        error: "Comment not found",
       } as ApiResponse);
       return;
     }
@@ -255,7 +259,7 @@ export const deleteComment = async (
     if (comment.author.toString() !== req.user.userId) {
       res.status(403).json({
         success: false,
-        error: 'Not authorized to delete this comment',
+        error: "Not authorized to delete this comment",
       } as ApiResponse);
       return;
     }
@@ -270,18 +274,18 @@ export const deleteComment = async (
       const socketService = getSocketService();
       socketService.emitDeleteComment(pageId, commentId);
     } catch (error) {
-      console.log('Socket service not available');
+      console.log("Socket service not available");
     }
 
     res.status(200).json({
       success: true,
-      message: 'Comment deleted successfully',
+      message: "Comment deleted successfully",
     } as ApiResponse);
   } catch (error: any) {
-    console.error('Delete comment error:', error);
+    console.error("Delete comment error:", error);
     res.status(500).json({
       success: false,
-      error: 'Error deleting comment',
+      error: "Error deleting comment",
     } as ApiResponse);
   }
 };
@@ -299,7 +303,7 @@ export const likeComment = async (
     if (!req.user) {
       res.status(401).json({
         success: false,
-        error: 'Not authenticated',
+        error: "Not authenticated",
       } as ApiResponse);
       return;
     }
@@ -309,7 +313,7 @@ export const likeComment = async (
     if (!comment) {
       res.status(404).json({
         success: false,
-        error: 'Comment not found',
+        error: "Comment not found",
       } as ApiResponse);
       return;
     }
@@ -317,21 +321,21 @@ export const likeComment = async (
     const userId = new Types.ObjectId(req.user.userId);
 
     // Check if already liked
-    const alreadyLiked = comment.likes.some(id => id.equals(userId));
+    const alreadyLiked = comment.likes.some((id) => id.equals(userId));
 
     if (alreadyLiked) {
       // Remove like
-      comment.likes = comment.likes.filter(id => !id.equals(userId));
+      comment.likes = comment.likes.filter((id) => !id.equals(userId));
     } else {
       // Add like and remove dislike if exists
       comment.likes.push(userId);
-      comment.dislikes = comment.dislikes.filter(id => !id.equals(userId));
+      comment.dislikes = comment.dislikes.filter((id) => !id.equals(userId));
     }
 
     await comment.save();
 
     const updatedComment = await Comment.findById(comment._id)
-      .populate('author', '-password')
+      .populate("author", "-password")
       .lean();
 
     // Emit socket event
@@ -339,19 +343,19 @@ export const likeComment = async (
       const socketService = getSocketService();
       socketService.emitLikeComment(comment.pageId, updatedComment);
     } catch (error) {
-      console.log('Socket service not available');
+      console.log("Socket service not available");
     }
 
     res.status(200).json({
       success: true,
-      message: alreadyLiked ? 'Like removed' : 'Comment liked',
+      message: alreadyLiked ? "Like removed" : "Comment liked",
       data: updatedComment,
     } as ApiResponse);
   } catch (error: any) {
-    console.error('Like comment error:', error);
+    console.error("Like comment error:", error);
     res.status(500).json({
       success: false,
-      error: 'Error liking comment',
+      error: "Error liking comment",
     } as ApiResponse);
   }
 };
@@ -369,7 +373,7 @@ export const dislikeComment = async (
     if (!req.user) {
       res.status(401).json({
         success: false,
-        error: 'Not authenticated',
+        error: "Not authenticated",
       } as ApiResponse);
       return;
     }
@@ -379,7 +383,7 @@ export const dislikeComment = async (
     if (!comment) {
       res.status(404).json({
         success: false,
-        error: 'Comment not found',
+        error: "Comment not found",
       } as ApiResponse);
       return;
     }
@@ -387,21 +391,21 @@ export const dislikeComment = async (
     const userId = new Types.ObjectId(req.user.userId);
 
     // Check if already disliked
-    const alreadyDisliked = comment.dislikes.some(id => id.equals(userId));
+    const alreadyDisliked = comment.dislikes.some((id) => id.equals(userId));
 
     if (alreadyDisliked) {
       // Remove dislike
-      comment.dislikes = comment.dislikes.filter(id => !id.equals(userId));
+      comment.dislikes = comment.dislikes.filter((id) => !id.equals(userId));
     } else {
       // Add dislike and remove like if exists
       comment.dislikes.push(userId);
-      comment.likes = comment.likes.filter(id => !id.equals(userId));
+      comment.likes = comment.likes.filter((id) => !id.equals(userId));
     }
 
     await comment.save();
 
     const updatedComment = await Comment.findById(comment._id)
-      .populate('author', '-password')
+      .populate("author", "-password")
       .lean();
 
     // Emit socket event
@@ -409,19 +413,19 @@ export const dislikeComment = async (
       const socketService = getSocketService();
       socketService.emitDislikeComment(comment.pageId, updatedComment);
     } catch (error) {
-      console.log('Socket service not available');
+      console.log("Socket service not available");
     }
 
     res.status(200).json({
       success: true,
-      message: alreadyDisliked ? 'Dislike removed' : 'Comment disliked',
+      message: alreadyDisliked ? "Dislike removed" : "Comment disliked",
       data: updatedComment,
     } as ApiResponse);
   } catch (error: any) {
-    console.error('Dislike comment error:', error);
+    console.error("Dislike comment error:", error);
     res.status(500).json({
       success: false,
-      error: 'Error disliking comment',
+      error: "Error disliking comment",
     } as ApiResponse);
   }
 };
@@ -441,7 +445,7 @@ export const getReplies = async (
       isDeleted: false,
     })
       .sort({ createdAt: 1 })
-      .populate('author', '-password')
+      .populate("author", "-password")
       .lean();
 
     res.status(200).json({
@@ -449,10 +453,10 @@ export const getReplies = async (
       data: replies,
     } as ApiResponse);
   } catch (error: any) {
-    console.error('Get replies error:', error);
+    console.error("Get replies error:", error);
     res.status(500).json({
       success: false,
-      error: 'Error fetching replies',
+      error: "Error fetching replies",
     } as ApiResponse);
   }
 };

@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction } from "express";
 
 interface ErrorResponse {
   success: boolean;
@@ -8,14 +8,14 @@ interface ErrorResponse {
 
 export const errorHandler = (
   err: any,
-  req: Request,
+  _req: Request,
   res: Response,
-  next: NextFunction
+  _next: NextFunction
 ): void => {
-  console.error('❌ Error:', err);
+  console.error("❌ Error:", err);
 
   const statusCode = err.statusCode || 500;
-  const message = err.message || 'Internal Server Error';
+  const message = err.message || "Internal Server Error";
 
   const response: ErrorResponse = {
     success: false,
@@ -23,14 +23,18 @@ export const errorHandler = (
   };
 
   // Include stack trace in development mode
-  if (process.env.NODE_ENV === 'development') {
+  if (process.env.NODE_ENV === "development") {
     response.stack = err.stack;
   }
 
   res.status(statusCode).json(response);
 };
 
-export const notFound = (req: Request, res: Response, next: NextFunction): void => {
+export const notFound = (
+  req: Request,
+  _res: Response,
+  next: NextFunction
+): void => {
   const error: any = new Error(`Not Found - ${req.originalUrl}`);
   error.statusCode = 404;
   next(error);

@@ -1,5 +1,4 @@
-import { Router } from 'express';
-import { body, param, query } from 'express-validator';
+import { Router } from "express";
 import {
   getComments,
   createComment,
@@ -8,119 +7,65 @@ import {
   likeComment,
   dislikeComment,
   getReplies,
-} from '../controllers/commentController';
-import { authenticate } from '../middleware/auth';
-import { validate } from '../middleware/validator';
+} from "../controllers/commentController";
+import { authenticate } from "../middleware/auth";
+import validatorMiddleware from "../middleware/validatorMiddleware";
+import {
+  getCommentsValidator,
+  createCommentValidator,
+  updateCommentValidator,
+  commentIdValidator,
+} from "../lib/validators/commentValidators";
 
 const router = Router();
 
-// Validation rules
-const createCommentValidation = [
-  body('content')
-    .trim()
-    .isLength({ min: 1, max: 2000 })
-    .withMessage('Comment must be between 1 and 2000 characters'),
-  body('pageId')
-    .trim()
-    .notEmpty()
-    .withMessage('Page ID is required'),
-  body('parentCommentId')
-    .optional()
-    .isMongoId()
-    .withMessage('Invalid parent comment ID'),
-];
-
-const updateCommentValidation = [
-  param('commentId')
-    .isMongoId()
-    .withMessage('Invalid comment ID'),
-  body('content')
-    .trim()
-    .isLength({ min: 1, max: 2000 })
-    .withMessage('Comment must be between 1 and 2000 characters'),
-];
-
-const commentIdValidation = [
-  param('commentId')
-    .isMongoId()
-    .withMessage('Invalid comment ID'),
-];
-
-const pageIdValidation = [
-  param('pageId')
-    .trim()
-    .notEmpty()
-    .withMessage('Page ID is required'),
-];
-
-const paginationValidation = [
-  query('page')
-    .optional()
-    .isInt({ min: 1 })
-    .withMessage('Page must be a positive integer'),
-  query('limit')
-    .optional()
-    .isInt({ min: 1, max: 100 })
-    .withMessage('Limit must be between 1 and 100'),
-  query('sort')
-    .optional()
-    .isIn(['newest', 'mostLiked', 'mostDisliked'])
-    .withMessage('Sort must be one of: newest, mostLiked, mostDisliked'),
-];
-
 // Routes
-router.get(
-  '/:pageId',
-  pageIdValidation,
-  paginationValidation,
-  validate,
-  getComments
-);
+router.get("/:pageId", getCommentsValidator, validatorMiddleware, getComments);
 
 router.post(
-  '/',
+  "/",
   authenticate,
-  createCommentValidation,
-  validate,
+  createCommentValidator,
+  validatorMiddleware,
   createComment
 );
 
 router.put(
-  '/:commentId',
+  "/:commentId",
   authenticate,
-  updateCommentValidation,
-  validate,
+  updateCommentValidator,
+  validatorMiddleware,
   updateComment
 );
 
 router.delete(
-  '/:commentId',
+  "/:commentId",
   authenticate,
-  commentIdValidation,
-  validate,
+  commentIdValidator,
+  validatorMiddleware,
   deleteComment
 );
 
 router.post(
-  '/:commentId/like',
+  "/:commentId/like",
   authenticate,
-  commentIdValidation,
-  validate,
+  commentIdValidator,
+  validatorMiddleware,
   likeComment
 );
 
 router.post(
-  '/:commentId/dislike',
+  "/:commentId/dislike",
   authenticate,
-  commentIdValidation,
-  validate,
+  commentIdValidator,
+  validatorMiddleware,
   dislikeComment
 );
 
 router.get(
-  '/:commentId/replies',
-  commentIdValidation,
-  validate,
+  "/:commentId/replies",
+  commentIdValidator,
+  validatorMiddleware,
   getReplies
 );
 

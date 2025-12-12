@@ -1,8 +1,8 @@
-import { createServer } from 'http';
-import dotenv from 'dotenv';
-import app from './src/index';
-import connectDB from './src/config/database';
-import { initializeSocket } from './src/utils/socket';
+import { createServer } from "http";
+import dotenv from "dotenv";
+import app from "./src/index";
+import connectDB from "./src/config/database";
+import { initializeSocket } from "./src/utils/socket";
 
 // Load environment variables
 dotenv.config();
@@ -13,7 +13,7 @@ const PORT = process.env.PORT || 5000;
 const server = createServer(app);
 
 // Initialize Socket.io
-const socketService = initializeSocket(server);
+initializeSocket(server);
 
 // Connect to database and start server
 const startServer = async () => {
@@ -23,30 +23,30 @@ const startServer = async () => {
 
     // Start server
     server.listen(PORT, () => {
-      console.log('=================================');
+      console.log("=================================");
       console.log(`🚀 Server is running on port ${PORT}`);
-      console.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+      console.log(`🌍 Environment: ${process.env.NODE_ENV || "development"}`);
       console.log(`🔗 API Base URL: http://localhost:${PORT}`);
       console.log(`📡 Socket.io is ready`);
-      console.log('=================================');
+      console.log("=================================");
     });
   } catch (error) {
-    console.error('❌ Failed to start server:', error);
+    console.error("❌ Failed to start server:", error);
     process.exit(1);
   }
 };
 
 // Handle unhandled promise rejections
-process.on('unhandledRejection', (err: Error) => {
-  console.error('❌ Unhandled Rejection:', err.message);
+process.on("unhandledRejection", (err: Error) => {
+  console.error("❌ Unhandled Rejection:", err.message);
   server.close(() => process.exit(1));
 });
 
 // Handle SIGTERM
-process.on('SIGTERM', () => {
-  console.log('👋 SIGTERM received. Shutting down gracefully...');
+process.on("SIGTERM", () => {
+  console.log("👋 SIGTERM received. Shutting down gracefully...");
   server.close(() => {
-    console.log('✅ Process terminated');
+    console.log("✅ Process terminated");
   });
 });
 

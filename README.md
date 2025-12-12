@@ -5,12 +5,14 @@ A robust, scalable backend for a real-time comment system built with MongoDB, Ex
 ## 🚀 Features
 
 ### Authentication
+
 - ✅ User registration with email and username validation
 - ✅ JWT-based authentication
 - ✅ Secure password hashing with bcrypt
 - ✅ Protected routes with authentication middleware
 
 ### Comment System
+
 - ✅ Create, read, update, and delete comments
 - ✅ Like and dislike functionality (toggle-able)
 - ✅ Nested comments/replies support
@@ -21,6 +23,7 @@ A robust, scalable backend for a real-time comment system built with MongoDB, Ex
 - ✅ One like/dislike per user validation
 
 ### Real-time Updates
+
 - ✅ Socket.io integration for real-time events
 - ✅ Live comment creation notifications
 - ✅ Real-time like/dislike updates
@@ -28,6 +31,7 @@ A robust, scalable backend for a real-time comment system built with MongoDB, Ex
 - ✅ Page-specific room management
 
 ### Architecture
+
 - ✅ Modular and scalable architecture
 - ✅ TypeScript for type safety
 - ✅ Service layer separation
@@ -90,16 +94,19 @@ CLIENT_URL=http://localhost:3000
 ### 5. Run the application
 
 #### Development mode (with hot reload)
+
 ```bash
 npm run dev
 ```
 
 #### Build TypeScript
+
 ```bash
 npm run build
 ```
 
 #### Production mode
+
 ```bash
 npm start
 ```
@@ -109,6 +116,7 @@ The server will start on `http://localhost:5000` (or your specified PORT)
 ## 📡 API Documentation
 
 ### Base URL
+
 ```
 http://localhost:5000/api
 ```
@@ -116,6 +124,7 @@ http://localhost:5000/api
 ### Authentication Endpoints
 
 #### Register User
+
 ```http
 POST /api/auth/register
 Content-Type: application/json
@@ -128,6 +137,7 @@ Content-Type: application/json
 ```
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -144,6 +154,7 @@ Content-Type: application/json
 ```
 
 #### Login
+
 ```http
 POST /api/auth/login
 Content-Type: application/json
@@ -155,6 +166,7 @@ Content-Type: application/json
 ```
 
 #### Get Current User
+
 ```http
 GET /api/auth/me
 Authorization: Bearer <your_jwt_token>
@@ -163,16 +175,19 @@ Authorization: Bearer <your_jwt_token>
 ### Comment Endpoints
 
 #### Get Comments for a Page
+
 ```http
 GET /api/comments/:pageId?page=1&limit=10&sort=newest
 ```
 
 **Query Parameters:**
+
 - `page` (optional): Page number (default: 1)
 - `limit` (optional): Comments per page (default: 10, max: 100)
 - `sort` (optional): 'newest', 'mostLiked', 'mostDisliked' (default: 'newest')
 
 **Response:**
+
 ```json
 {
   "success": true,
@@ -187,6 +202,7 @@ GET /api/comments/:pageId?page=1&limit=10&sort=newest
 ```
 
 #### Create Comment
+
 ```http
 POST /api/comments
 Authorization: Bearer <your_jwt_token>
@@ -200,6 +216,7 @@ Content-Type: application/json
 ```
 
 #### Update Comment
+
 ```http
 PUT /api/comments/:commentId
 Authorization: Bearer <your_jwt_token>
@@ -211,24 +228,28 @@ Content-Type: application/json
 ```
 
 #### Delete Comment
+
 ```http
 DELETE /api/comments/:commentId
 Authorization: Bearer <your_jwt_token>
 ```
 
 #### Like Comment
+
 ```http
 POST /api/comments/:commentId/like
 Authorization: Bearer <your_jwt_token>
 ```
 
 #### Dislike Comment
+
 ```http
 POST /api/comments/:commentId/dislike
 Authorization: Bearer <your_jwt_token>
 ```
 
 #### Get Replies
+
 ```http
 GET /api/comments/:commentId/replies
 ```
@@ -236,63 +257,71 @@ GET /api/comments/:commentId/replies
 ## 🔌 Socket.io Events
 
 ### Client Connection
-```javascript
-import io from 'socket.io-client';
 
-const socket = io('http://localhost:5000', {
+```javascript
+import io from "socket.io-client";
+
+const socket = io("http://localhost:5000", {
   auth: {
-    token: 'your_jwt_token'
-  }
+    token: "your_jwt_token",
+  },
 });
 ```
 
 ### Events to Emit
 
 #### Join Page
+
 ```javascript
-socket.emit('joinPage', 'page-123');
+socket.emit("joinPage", "page-123");
 ```
 
 #### Leave Page
+
 ```javascript
-socket.emit('leavePage', 'page-123');
+socket.emit("leavePage", "page-123");
 ```
 
 ### Events to Listen
 
 #### New Comment
+
 ```javascript
-socket.on('newComment', (comment) => {
-  console.log('New comment:', comment);
+socket.on("newComment", (comment) => {
+  console.log("New comment:", comment);
   // Update your UI
 });
 ```
 
 #### Update Comment
+
 ```javascript
-socket.on('updateComment', (comment) => {
-  console.log('Comment updated:', comment);
+socket.on("updateComment", (comment) => {
+  console.log("Comment updated:", comment);
 });
 ```
 
 #### Delete Comment
+
 ```javascript
-socket.on('deleteComment', ({ commentId }) => {
-  console.log('Comment deleted:', commentId);
+socket.on("deleteComment", ({ commentId }) => {
+  console.log("Comment deleted:", commentId);
 });
 ```
 
 #### Like Comment
+
 ```javascript
-socket.on('likeComment', (comment) => {
-  console.log('Comment liked:', comment);
+socket.on("likeComment", (comment) => {
+  console.log("Comment liked:", comment);
 });
 ```
 
 #### Dislike Comment
+
 ```javascript
-socket.on('dislikeComment', (comment) => {
-  console.log('Comment disliked:', comment);
+socket.on("dislikeComment", (comment) => {
+  console.log("Comment disliked:", comment);
 });
 ```
 
@@ -343,6 +372,7 @@ comments-backend/
 ## 🧪 Testing the API
 
 You can test the API using:
+
 - [Postman](https://www.postman.com/)
 - [Insomnia](https://insomnia.rest/)
 - [Thunder Client](https://www.thunderclient.com/) (VS Code extension)
@@ -373,12 +403,14 @@ curl -X POST http://localhost:5000/api/comments \
 ### Environment Variables for Production
 
 Make sure to set these in your production environment:
+
 - `NODE_ENV=production`
 - `MONGODB_URI` (your production MongoDB URI)
 - `JWT_SECRET` (strong random secret)
 - `CLIENT_URL` (your frontend URL)
 
 ### Recommended Platforms
+
 - [Heroku](https://www.heroku.com/)
 - [Railway](https://railway.app/)
 - [Render](https://render.com/)

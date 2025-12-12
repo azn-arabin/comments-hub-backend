@@ -1,7 +1,7 @@
-import { Response } from 'express';
-import User from '../models/User';
-import { generateToken } from '../config/jwt';
-import { AuthRequest, ApiResponse } from '../types';
+import { Response } from "express";
+import User from "../models/User";
+import { generateToken } from "../config/jwt";
+import { AuthRequest, ApiResponse } from "../types";
 
 // @desc    Register new user
 // @route   POST /api/auth/register
@@ -23,8 +23,8 @@ export const register = async (
         success: false,
         error:
           existingUser.email === email
-            ? 'Email already registered'
-            : 'Username already taken',
+            ? "Email already registered"
+            : "Username already taken",
       } as ApiResponse);
       return;
     }
@@ -45,7 +45,7 @@ export const register = async (
 
     res.status(201).json({
       success: true,
-      message: 'User registered successfully',
+      message: "User registered successfully",
       data: {
         token,
         user: {
@@ -56,10 +56,10 @@ export const register = async (
       },
     } as ApiResponse);
   } catch (error: any) {
-    console.error('Register error:', error);
+    console.error("Register error:", error);
     res.status(500).json({
       success: false,
-      error: 'Error registering user',
+      error: "Error registering user",
     } as ApiResponse);
   }
 };
@@ -72,12 +72,12 @@ export const login = async (req: AuthRequest, res: Response): Promise<void> => {
     const { email, password } = req.body;
 
     // Find user and include password
-    const user = await User.findOne({ email }).select('+password');
+    const user = await User.findOne({ email }).select("+password");
 
     if (!user) {
       res.status(401).json({
         success: false,
-        error: 'Invalid credentials',
+        error: "Invalid credentials",
       } as ApiResponse);
       return;
     }
@@ -88,7 +88,7 @@ export const login = async (req: AuthRequest, res: Response): Promise<void> => {
     if (!isPasswordValid) {
       res.status(401).json({
         success: false,
-        error: 'Invalid credentials',
+        error: "Invalid credentials",
       } as ApiResponse);
       return;
     }
@@ -102,7 +102,7 @@ export const login = async (req: AuthRequest, res: Response): Promise<void> => {
 
     res.status(200).json({
       success: true,
-      message: 'Login successful',
+      message: "Login successful",
       data: {
         token,
         user: {
@@ -113,10 +113,10 @@ export const login = async (req: AuthRequest, res: Response): Promise<void> => {
       },
     } as ApiResponse);
   } catch (error: any) {
-    console.error('Login error:', error);
+    console.error("Login error:", error);
     res.status(500).json({
       success: false,
-      error: 'Error logging in',
+      error: "Error logging in",
     } as ApiResponse);
   }
 };
@@ -129,7 +129,7 @@ export const getMe = async (req: AuthRequest, res: Response): Promise<void> => {
     if (!req.user) {
       res.status(401).json({
         success: false,
-        error: 'Not authenticated',
+        error: "Not authenticated",
       } as ApiResponse);
       return;
     }
@@ -139,7 +139,7 @@ export const getMe = async (req: AuthRequest, res: Response): Promise<void> => {
     if (!user) {
       res.status(404).json({
         success: false,
-        error: 'User not found',
+        error: "User not found",
       } as ApiResponse);
       return;
     }
@@ -154,10 +154,10 @@ export const getMe = async (req: AuthRequest, res: Response): Promise<void> => {
       },
     } as ApiResponse);
   } catch (error: any) {
-    console.error('Get user error:', error);
+    console.error("Get user error:", error);
     res.status(500).json({
       success: false,
-      error: 'Error fetching user data',
+      error: "Error fetching user data",
     } as ApiResponse);
   }
 };
