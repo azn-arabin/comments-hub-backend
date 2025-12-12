@@ -1,10 +1,5 @@
 import { Request, Response, NextFunction } from "express";
-
-interface ErrorResponse {
-  success: boolean;
-  error: string;
-  stack?: string;
-}
+import { sendFailureResponse } from "../lib/helpers/responseHelper";
 
 export const errorHandler = (
   err: any,
@@ -17,17 +12,13 @@ export const errorHandler = (
   const statusCode = err.statusCode || 500;
   const message = err.message || "Internal Server Error";
 
-  const response: ErrorResponse = {
-    success: false,
-    error: message,
-  };
-
-  // Include stack trace in development mode
-  if (process.env.NODE_ENV === "development") {
-    response.stack = err.stack;
-  }
-
-  res.status(statusCode).json(response);
+  sendFailureResponse({
+    res,
+    statusCode,
+    message,
+    errorType: err.errorType || "INTERNAL_ERROR",
+    error: process.env.NODE_ENV === "development" ? err.stack : undefined,
+  });
 };
 
 export const notFound = (

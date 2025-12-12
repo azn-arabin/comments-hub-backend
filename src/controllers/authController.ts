@@ -1,7 +1,12 @@
 import { Response } from "express";
 import User from "../models/User";
 import { generateToken } from "../config/jwt";
-import { AuthRequest, ApiResponse } from "../types";
+import { AuthRequest } from "../types";
+import {
+  sendSuccessResponse,
+  sendFailureResponse,
+  sendFieldErrorResponse,
+} from "../lib/helpers/responseHelper";
 
 // @desc    Register new user
 // @route   POST /api/auth/register
@@ -19,13 +24,17 @@ export const register = async (
     });
 
     if (existingUser) {
-      res.status(400).json({
-        success: false,
-        error:
-          existingUser.email === email
-            ? "Email already registered"
-            : "Username already taken",
-      } as ApiResponse);
+      const field = existingUser.email === email ? "email" : "username";
+      const message =
+        existingUser.email === email
+          ? "Email already registered"
+          : "Username already taken";
+      sendFieldErrorResponse({
+        res,
+        statusCode: 409,
+        message,
+        field,
+      });
       return;
     }
 
@@ -43,8 +52,9 @@ export const register = async (
       username: user.username,
     });
 
-    res.status(201).json({
-      success: true,
+    sendSuccessResponse({
+      res,
+      statusCode: 201,
       message: "User registered successfully",
       data: {
         token,
@@ -54,13 +64,15 @@ export const register = async (
           email: user.email,
         },
       },
-    } as ApiResponse);
+    });
   } catch (error: any) {
     console.error("Register error:", error);
-    res.status(500).json({
-      success: false,
-      error: "Error registering user",
-    } as ApiResponse);
+    sendFailureResponse({
+      res,
+      statusCode: 500,
+      message: "Error registering user",
+      error,
+    });
   }
 };
 
@@ -75,10 +87,12 @@ export const login = async (req: AuthRequest, res: Response): Promise<void> => {
     const user = await User.findOne({ email }).select("+password");
 
     if (!user) {
-      res.status(401).json({
-        success: false,
-        error: "Invalid credentials",
-      } as ApiResponse);
+      sendFailureResponse({
+        res,
+        statusCode: 401,
+        message: "Invalid credentials",
+        errorType: "AUTHENTICATION_FAILED",
+      });
       return;
     }
 
@@ -86,10 +100,12 @@ export const login = async (req: AuthRequest, res: Response): Promise<void> => {
     const isPasswordValid = await user.comparePassword(password);
 
     if (!isPasswordValid) {
-      res.status(401).json({
-        success: false,
-        error: "Invalid credentials",
-      } as ApiResponse);
+      sendFailureResponse({
+        res,
+        statusCode: 401,
+        message: "Invalid credentials",
+        errorType: "AUTHENTICATION_FAILED",
+      });
       return;
     }
 
@@ -100,8 +116,9 @@ export const login = async (req: AuthRequest, res: Response): Promise<void> => {
       username: user.username,
     });
 
-    res.status(200).json({
-      success: true,
+    sendSuccessResponse({
+      res,
+      statusCode: 200,
       message: "Login successful",
       data: {
         token,
@@ -111,13 +128,15 @@ export const login = async (req: AuthRequest, res: Response): Promise<void> => {
           email: user.email,
         },
       },
-    } as ApiResponse);
+    });
   } catch (error: any) {
     console.error("Login error:", error);
-    res.status(500).json({
-      success: false,
-      error: "Error logging in",
-    } as ApiResponse);
+    sendFailureResponse({
+      res,
+      statusCode: 500,
+      message: "Error logging in",
+      error,
+    });
   }
 };
 
@@ -127,37 +146,45 @@ export const login = async (req: AuthRequest, res: Response): Promise<void> => {
 export const getMe = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     if (!req.user) {
-      res.status(401).json({
-        success: false,
-        error: "Not authenticated",
-      } as ApiResponse);
+      sendFailureResponse({
+        res,
+        statusCode: 401,
+        message: "Not authenticated",
+        errorType: "UNAUTHORIZED",
+      });
       return;
     }
 
     const user = await User.findById(req.user.userId);
 
     if (!user) {
-      res.status(404).json({
-        success: false,
-        error: "User not found",
-      } as ApiResponse);
+      sendFailureResponse({
+        res,
+        statusCode: 404,
+        message: "User not found",
+        errorType: "NOT_FOUND",
+      });
       return;
     }
 
-    res.status(200).json({
-      success: true,
+    sendSuccessResponse({
+      res,
+      statusCode: 200,
+      message: "User data fetched successfully",
       data: {
         id: user._id,
         username: user.username,
         email: user.email,
         createdAt: user.createdAt,
       },
-    } as ApiResponse);
+    });
   } catch (error: any) {
     console.error("Get user error:", error);
-    res.status(500).json({
-      success: false,
-      error: "Error fetching user data",
-    } as ApiResponse);
+    sendFailureResponse({
+      res,
+      statusCode: 500,
+      message: "Error fetching user data",
+      error,
+    });
   }
 };
