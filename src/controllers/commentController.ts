@@ -142,6 +142,30 @@ export const createComment = async (
         });
         return;
       }
+
+      // Check reply depth (maximum 3 levels)
+      let depth = 1;
+      let currentComment = parentComment;
+
+      while (currentComment.parentComment && depth < 3) {
+        const nextComment = await Comment.findById(
+          currentComment.parentComment
+        );
+        if (!nextComment) break;
+        currentComment = nextComment;
+        depth++;
+      }
+
+      if (depth >= 3) {
+        sendFailureResponse({
+          res,
+          statusCode: 400,
+          message:
+            "Maximum reply depth (3 levels) reached. Cannot add more nested replies.",
+          errorType: "VALIDATION_ERROR",
+        });
+        return;
+      }
     }
 
     const comment = await Comment.create({

@@ -19,38 +19,48 @@ export class SocketService {
   }
 
   private initialize(): void {
-    // Authentication middleware
+    // Optional authentication middleware (allows both authenticated and anonymous users)
     this.io.use((socket: Socket, next) => {
       try {
         const token = socket.handshake.auth.token;
 
-        if (!token) {
-          return next(new Error("Authentication error: No token provided"));
+        if (token) {
+          // If token is provided, verify it
+          const decoded = verifyToken(token);
+          (socket as any).user = decoded;
+        } else {
+          // Allow anonymous users (for public viewing)
+          (socket as any).user = null;
         }
-
-        const decoded = verifyToken(token);
-        (socket as any).user = decoded;
         next();
       } catch (error) {
-        next(new Error("Authentication error: Invalid token"));
+        // If token is invalid, allow connection as anonymous
+        (socket as any).user = null;
+        next();
       }
     });
 
     this.io.on(SocketEvents.CONNECTION, (socket: Socket) => {
       console.log(`✅ User connected: ${socket.id}`);
       const user = (socket as any).user;
-      console.log(`👤 User: ${user?.username} (${user?.userId})`);
+      if (user) {
+        console.log(`👤 Authenticated: ${user?.username} (${user?.userId})`);
+      } else {
+        console.log(`👤 Anonymous user connected`);
+      }
 
       // Join page room
       socket.on(SocketEvents.JOIN_PAGE, (pageId: string) => {
         socket.join(`page:${pageId}`);
-        console.log(`📄 User ${user?.username} joined page: ${pageId}`);
+        const userInfo = user ? user.username : "Anonymous";
+        console.log(`📄 User ${userInfo} joined page: ${pageId}`);
       });
 
       // Leave page room
       socket.on(SocketEvents.LEAVE_PAGE, (pageId: string) => {
         socket.leave(`page:${pageId}`);
-        console.log(`📄 User ${user?.username} left page: ${pageId}`);
+        const userInfo = user ? user.username : "Anonymous";
+        console.log(`📄 User ${userInfo} left page: ${pageId}`);
       });
 
       // Disconnect
