@@ -9,6 +9,7 @@
     "dev": "nodemon server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
+    "seed": "ts-node src/seeders/seed.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {

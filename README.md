@@ -113,6 +113,22 @@ npm start
 
 The server will start on `http://localhost:5000` (or your specified PORT)
 
+## 🌱 Seeding Data
+
+To populate the database with sample users and comments for testing:
+
+```bash
+npm run seed
+```
+
+This will create:
+
+- 5 sample users (Alice, Bob, Charlie, Diana, Eve)
+- 25 comments (5 per user) with random likes/dislikes
+- Random replies to comments
+
+**Note:** Ensure MongoDB is running before seeding.
+
 ## 📡 API Documentation
 
 ### Base URL
